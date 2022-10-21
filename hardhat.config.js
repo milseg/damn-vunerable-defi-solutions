@@ -5,7 +5,9 @@ require('hardhat-dependency-compiler');
 module.exports = {
     networks: {
       hardhat: {
-        allowUnlimitedContractSize: true
+        allowUnlimitedContractSize: true,
+        gas: 3000000,
+        gasPrice: 8000000000,
       }  
     },
     solidity: {

